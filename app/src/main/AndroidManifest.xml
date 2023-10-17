@@ -30,7 +30,7 @@
             android:name=".Login"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".Dealer"
             android:exported="true"/>
 
 

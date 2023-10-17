@@ -1,18 +1,25 @@
 package com.example.demoapp
 
+import android.R
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import com.example.demoapp.databinding.ActivityRetalerBinding
+import androidx.core.view.isNotEmpty
+import com.example.demoapp.databinding.ActivityDealerBinding
+import com.example.demoapp.databinding.ActivitySignupBinding
+import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
-class Retaler : AppCompatActivity() {
-    private lateinit var binding: ActivityRetalerBinding
+class Dealer : AppCompatActivity() {
+    private lateinit var binding: ActivityDealerBinding
     private val firestore = FirebaseFirestore.getInstance()
+
     private val states = arrayOf("Select State", "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal")
     private val citiesMap = mapOf(
         "Andhra Pradesh" to arrayOf("Select City", "Visakhapatnam", "Vijayawada", "Guntur"),
@@ -44,34 +51,37 @@ class Retaler : AppCompatActivity() {
         "Uttarakhand" to arrayOf("Select City", "Dehradun", "Haridwar", "Roorkee"),
         "West Bengal" to arrayOf("Select City", "Kolkata", "Asansol", "Siliguri")
     )
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        FirebaseApp.initializeApp(this)
         super.onCreate(savedInstanceState)
-        binding = ActivityRetalerBinding.inflate(layoutInflater)
+        FirebaseApp.initializeApp(this)
+        binding=ActivityDealerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
 
-        val spy = binding.state
-        val city= binding.City
+        val highe = binding.state
+        val locals= binding.City
         // Create an ArrayAdapter for the state spinner
-        val stateAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, states)
-        stateAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spy.adapter = stateAdapter
+        val stateAdapter = ArrayAdapter(this, R.layout.simple_spinner_item, states)
+        stateAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item)
+        highe.adapter = stateAdapter
 
 
-        spy.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        highe.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val selectedState = states[position]
                 if (selectedState != "Select State") {
                     val cities = citiesMap[selectedState]
                     if (cities != null) {
-                        val cityAdapter = ArrayAdapter(this@Retaler, android.R.layout.simple_spinner_item, cities)
-                        cityAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                        city.adapter = cityAdapter
+                        val cityAdapter = ArrayAdapter(this@Dealer, R.layout.simple_spinner_item, cities)
+                        cityAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item)
+                        locals.adapter = cityAdapter
                     } else {
                         showToast("No cities found for the selected state.")
                     }
                 } else {
-                    city.adapter = null
+                    locals.adapter = null
                     showToast("Please select a state.")
                 }
 
@@ -80,35 +90,45 @@ class Retaler : AppCompatActivity() {
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }
         }
-        retrieveUserNamesFromFirestore()
-    }
-    private fun retrieveUserNamesFromFirestore() {
-        val chiedeler = binding.spinnerD
 
-        val usersCollection = firestore.collection("users") // Replace with your Firestore collection name
 
-        usersCollection.get()
-            .addOnSuccessListener { querySnapshot ->
-                val userNameList = mutableListOf<String>()
+        //on btn click
+        binding.Ragister.setOnClickListener {
+            val State=binding.state.selectedItem.toString()
+            val City=binding.City.selectedItem.toString()
+            val Name =binding.Name.text.toString()
+            val Businessname =binding.Business.text.toString()
 
-                for (document in querySnapshot) {
-                    val userData = document.data
-                    val userName = userData["name"] as String // Replace "name" with the actual field name
-                    userNameList.add(userName)
-                }
 
-                val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, userNameList)
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                chiedeler.adapter = adapter
+            if(State.isNotEmpty()&& City.isNotEmpty()&& Name.isNotEmpty() && Businessname.isNotEmpty()){
+                val db = Firebase.firestore
+
+                val user = hashMapOf(
+                    "name" to binding.Name.text.toString(),
+                    "State" to binding.state.selectedItem.toString(),
+                    "City" to binding.City.selectedItem.toString(),
+                    "Businessname" to binding.Business.text.toString()
+                )
+
+// Add a new document with a generated ID
+                db.collection("users")
+                    .add(user)
+                    .addOnSuccessListener { documentReference ->
+Toast.makeText(this,"Done you are ragisted",Toast.LENGTH_LONG).show()
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("FirestoreError", "Error adding document", e)
+                        Toast.makeText(this, "Failed: " + e.message, Toast.LENGTH_LONG).show()                    }
+
+            }else{
+                Toast.makeText(this,"Filled the full form !!",Toast.LENGTH_LONG).show()
             }
-            .addOnFailureListener { e ->
-                Log.e("FirestoreError", "Error adding document", e)
-                Toast.makeText(this, "Failed: " + e.message, Toast.LENGTH_LONG).show()                    }
-
+        }
     }
+
+
 
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
-
 }

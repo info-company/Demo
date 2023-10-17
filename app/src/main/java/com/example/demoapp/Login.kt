@@ -1,5 +1,6 @@
 package com.example.demoapp
 
+//noinspection SuspiciousImport
 import android.R
 import android.content.Intent
 import android.os.Bundle
@@ -26,9 +27,10 @@ class Login : AppCompatActivity() {
         val adapter = ArrayAdapter(this, R.layout.simple_spinner_item, genderOptions)
         Spy.adapter = adapter
 
-binding.textView.setOnClickListener {
+    binding.textView.setOnClickListener {
     val intent = Intent(this,Signup::class.java)
     startActivity(intent)
+        finish()
 }
         binding.button.setOnClickListener {
             val Email = binding.email.text.toString()
@@ -38,19 +40,24 @@ binding.textView.setOnClickListener {
 
                 firebaseAuth.signInWithEmailAndPassword(Email,password).addOnCompleteListener {
                     if (it.isSuccessful){
-                        val selectedGender = Spy.selectedItem.toString()
 
                         // Check the selected gender
-                        if (selectedGender == "Male") {
-                           val intent = Intent(this,Retaler::class.java)
-                            startActivity(intent)
-                        } else if (selectedGender == "Female") {
-                            val intent = Intent(this,MainActivity::class.java)
-                            startActivity(intent)
+                        when (Spy.selectedItem.toString()) {
+                            "Male" -> {
+                                val intent = Intent(this,Retaler::class.java)
+                                startActivity(intent)
+                                finish()
+                            }
+                            "Female" -> {
+                                val intent = Intent(this,Dealer::class.java)
+                                startActivity(intent)
+                                finish()
 
-                        } else {
-                           Toast.makeText(this,"You haven't choise spinner",Toast.LENGTH_LONG).show()
-                    }
+                            }
+                            else -> {
+                                Toast.makeText(this,"You haven't choise spinner",Toast.LENGTH_LONG).show()
+                            }
+                        }
                     }else{
                         Toast.makeText(this,it.exception.toString(),Toast.LENGTH_LONG).show()
 

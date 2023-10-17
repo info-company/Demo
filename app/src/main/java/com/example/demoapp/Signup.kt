@@ -29,6 +29,7 @@ class Signup : AppCompatActivity() {
                         if (it.isSuccessful){
                             val intent=Intent(this,Login::class.java)
                             startActivity(intent)
+                            finish()
                         }else{
                             Toast.makeText(this,it.exception.toString(),Toast.LENGTH_LONG).show()
 
