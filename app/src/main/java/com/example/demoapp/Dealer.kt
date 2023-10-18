@@ -1,16 +1,15 @@
 package com.example.demoapp
 
+//noinspection SuspiciousImport
 import android.R
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
-import androidx.core.view.isNotEmpty
+import androidx.appcompat.app.AppCompatActivity
 import com.example.demoapp.databinding.ActivityDealerBinding
-import com.example.demoapp.databinding.ActivitySignupBinding
 import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore

@@ -8,10 +8,13 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.demoapp.databinding.ActivityRetalerBinding
+import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
 class Retaler : AppCompatActivity() {
-    private lateinit var binding: ActivityRetalerBinding
+private lateinit var binding: ActivityRetalerBinding
     private val firestore = FirebaseFirestore.getInstance()
     private val states = arrayOf("Select State", "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal")
     private val citiesMap = mapOf(
@@ -45,7 +48,9 @@ class Retaler : AppCompatActivity() {
         "West Bengal" to arrayOf("Select City", "Kolkata", "Asansol", "Siliguri")
     )
     override fun onCreate(savedInstanceState: Bundle?) {
+        FirebaseApp.initializeApp(this)
         super.onCreate(savedInstanceState)
+        FirebaseApp.initializeApp(this)
         binding = ActivityRetalerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -81,6 +86,41 @@ class Retaler : AppCompatActivity() {
             }
         }
         retrieveUserNamesFromFirestore()
+
+        //On Button click Database Ragister
+        binding.Ragister.setOnClickListener {
+            val City = binding.City.selectedItem.toString()
+            val Name = binding.Name.text.toString()
+            val State = binding.state.selectedItem.toString()
+            val Business = binding.Business.text.toString()
+            val DealersName= binding.spinnerD.selectedItem.toString()
+            if(City.isNotEmpty()&&Name.isNotEmpty()&&State.isNotEmpty()&&Business.isNotEmpty()&&DealersName.isNotEmpty()){
+                val db = Firebase.firestore
+
+                val Ruser = hashMapOf(
+                    "name" to binding.Name.text.toString(),
+                    "State" to binding.state.selectedItem.toString(),
+                    "City" to binding.City.selectedItem.toString(),
+                    "Businessname" to binding.Business.text.toString(),
+                    "DealersName" to binding.spinnerD.selectedItem.toString()
+                )
+
+                // Add a new document with a generated ID
+                db.collection("ruser")
+                    .add(Ruser)
+                    .addOnSuccessListener { documentReference ->
+                        Toast.makeText(this,"retaler is added to database",Toast.LENGTH_LONG).show()
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("FirestoreError", "Error adding document", e)
+                        Toast.makeText(this, "Failed: " + e.message, Toast.LENGTH_LONG).show()                    }
+
+            }else{
+                Toast.makeText(this,"Field is Empty",Toast.LENGTH_LONG).show()
+            }
+        }
+
+
     }
     private fun retrieveUserNamesFromFirestore() {
         val chiedeler = binding.spinnerD
