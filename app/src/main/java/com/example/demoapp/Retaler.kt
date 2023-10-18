@@ -93,32 +93,57 @@ private lateinit var binding: ActivityRetalerBinding
             val Name = binding.Name.text.toString()
             val State = binding.state.selectedItem.toString()
             val Business = binding.Business.text.toString()
-            val DealersName= binding.spinnerD.selectedItem.toString()
-            if(City.isNotEmpty()&&Name.isNotEmpty()&&State.isNotEmpty()&&Business.isNotEmpty()&&DealersName.isNotEmpty()){
+            val DealersName = binding.spinnerD.selectedItem.toString()
+
+            if (City.isNotEmpty() && Name.isNotEmpty() && State.isNotEmpty() && Business.isNotEmpty() && DealersName.isNotEmpty()) {
                 val db = Firebase.firestore
 
-                val Ruser = hashMapOf(
-                    "name" to binding.Name.text.toString(),
-                    "State" to binding.state.selectedItem.toString(),
-                    "City" to binding.City.selectedItem.toString(),
-                    "Businessname" to binding.Business.text.toString(),
-                    "DealersName" to binding.spinnerD.selectedItem.toString()
-                )
+                // Create a reference to the "ruser" collection
+                val collectionRef = db.collection("ruser")
 
-                // Add a new document with a generated ID
-                db.collection("ruser")
-                    .add(Ruser)
-                    .addOnSuccessListener { documentReference ->
-                        Toast.makeText(this,"retaler is added to database",Toast.LENGTH_LONG).show()
+                // Check if a document with the same data already exists
+                collectionRef
+                    .whereEqualTo("name", Name)
+                    .whereEqualTo("State", State)
+                    .whereEqualTo("City", City)
+                    .whereEqualTo("Businessname", Business)
+                    .whereEqualTo("DealersName", DealersName)
+                    .get()
+                    .addOnSuccessListener { querySnapshot ->
+                        if (querySnapshot.isEmpty) {
+                            // No document with the same data exists, you can add it now.
+                            val Ruser = hashMapOf(
+                                "name" to Name,
+                                "State" to State,
+                                "City" to City,
+                                "Businessname" to Business,
+                                "DealersName" to DealersName
+                            )
+
+                            // Add a new document with a generated ID
+                            collectionRef
+                                .add(Ruser)
+                                .addOnSuccessListener { documentReference ->
+                                    Toast.makeText(this, "Retailer is added to the database", Toast.LENGTH_LONG).show()
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.e("FirestoreError", "Error adding document", e)
+                                    Toast.makeText(this, "Failed: " + e.message, Toast.LENGTH_LONG).show()
+                                }
+                        } else {
+                            // A document with the same data already exists. Show an error.
+                            Toast.makeText(this, "This data is already uploaded", Toast.LENGTH_LONG).show()
+                        }
                     }
                     .addOnFailureListener { e ->
-                        Log.e("FirestoreError", "Error adding document", e)
-                        Toast.makeText(this, "Failed: " + e.message, Toast.LENGTH_LONG).show()                    }
-
-            }else{
-                Toast.makeText(this,"Field is Empty",Toast.LENGTH_LONG).show()
+                        Log.e("FirestoreError", "Error checking for existing document", e)
+                        Toast.makeText(this, "Failed: " + e.message, Toast.LENGTH_LONG).show()
+                    }
+            } else {
+                Toast.makeText(this, "Fields are empty", Toast.LENGTH_LONG).show()
             }
         }
+
 
 
     }

@@ -2,6 +2,7 @@ package com.example.demoapp
 
 //noinspection SuspiciousImport
 import android.R
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -114,6 +115,9 @@ class Dealer : AppCompatActivity() {
                     .add(user)
                     .addOnSuccessListener { documentReference ->
 Toast.makeText(this,"Done you are ragisted",Toast.LENGTH_LONG).show()
+                        val intent=Intent(this,invok::class.java)
+                        startActivity(intent)
+                        finish()
                     }
                     .addOnFailureListener { e ->
                         Log.e("FirestoreError", "Error adding document", e)
