@@ -1,5 +1,6 @@
 package com.example.demoapp
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -125,6 +126,9 @@ private lateinit var binding: ActivityRetalerBinding
                                 .add(Ruser)
                                 .addOnSuccessListener { documentReference ->
                                     Toast.makeText(this, "Retailer is added to the database", Toast.LENGTH_LONG).show()
+                                    val intent= Intent(this, retalerDasbord::class.java)
+                                    startActivity(intent)
+                                    finish()
                                 }
                                 .addOnFailureListener { e ->
                                     Log.e("FirestoreError", "Error adding document", e)
